@@ -13,7 +13,7 @@ import { MainScreen } from './src/screens';
 const App: () => React$Node = () => {
   return (
     <>
-      <MainScreen/>
+      <MainScreen />
     </>
   );
 };
