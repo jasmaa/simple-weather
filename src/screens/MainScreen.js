@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { SafeAreaView, View, PermissionsAndroid } from 'react-native';
-import { Text, Button } from 'react-native-elements';
-import { Icon } from 'react-native-elements'
+import { SafeAreaView, View } from 'react-native';
+import { Text } from 'react-native-elements';
+import { Icon } from 'react-native-elements';
+import Geolocation from '@react-native-community/geolocation';
 
 const axios = require('axios');
 
@@ -10,27 +11,6 @@ const kelvin2celsius = (temp) => {
 }
 const kelvin2farenheit = (temp) => {
     return Math.floor((temp - 273.15) * 9 / 5 + 32);
-}
-
-async function requestGeolocationPermission() {
-    try {
-        const granted = await PermissionsAndroid.request(
-            PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
-            {
-                title: 'Access Location',
-                message: 'Allow Simple Weather to access your location?',
-                buttonNegative: 'Cancel',
-                buttonPositive: 'OK',
-            },
-        );
-        if (granted === PermissionsAndroid.RESULTS.GRANTED) {
-            console.log('Geolocation on');
-        } else {
-            console.log('Access denied');
-        }
-    } catch (err) {
-        console.warn(err);
-    }
 }
 
 const MainScreen = () => {
@@ -42,24 +22,28 @@ const MainScreen = () => {
     });
 
     useEffect(() => {
-
-        console.log(navigator.appVersion);
-
-        /*
-        navigator.geolocation.getCurrentPosition(
-            (position) => console.log(position),
-            (error) => console.error(error.message),
+        Geolocation.getCurrentPosition(
+            (position) => {
+                getWeather(position.coords.latitude, position.coords.longitude);
+            },
+            (error) => {
+                setWeatherData({
+                    loc: 'No Location',
+                    weather: '',
+                    temp: 0,
+                });
+            },
             { enableHighAccuracy: true, timeout: 20000, maximumAge: 1000 }
         );
-        */
     }, []);
 
-    const getWeather = () => {
-        // http://api.openweathermap.org/data/2.5/weather
-        axios.get('https://samples.openweathermap.org/data/2.5/weather', {
+    const getWeather = (lat, lon) => {
+
+        axios.get('http://api.openweathermap.org/data/2.5/weather', {
             params: {
-                q: 'london',    // gps location unimplmented
-                appid: '<appid here>',
+                lat: lat,
+                lon: lon,
+                appid: require('../credentials.json').appid,
             },
         })
             .then((response) => {
@@ -74,24 +58,28 @@ const MainScreen = () => {
     const renderWeatherIcon = (weather) => {
 
         let color = 'white';
-        let type = 'material';
-        let name = 'wb-sunny';
+        let type = 'material-community';
+        let name = 'earth';
 
         switch (weather) {
             case "Sunny":
                 color = 'yellow';
+                type = 'material';
                 name = 'wb-sunny';
                 break;
             case "Clear":
                 color = 'yellow';
+                type = 'material';
                 name = 'wb-sunny';
                 break;
             case "Mist":
                 color = 'white';
+                type = 'material';
                 name = 'dehaze';
                 break;
             case "Haze":
                 color = 'white';
+                type = 'material';
                 name = 'dehaze';
                 break;
             case "Fog":
@@ -101,6 +89,7 @@ const MainScreen = () => {
                 break;
             case "Clouds":
                 color = 'gray';
+                type = 'material';
                 name = 'wb-cloudy';
                 break;
             case "Drizzle":
@@ -136,14 +125,12 @@ const MainScreen = () => {
     return (
         <SafeAreaView
             style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'black' }}
-            onLayout={getWeather}
         >
             <Text style={{ color: 'white' }} h1>{weatherData.loc}</Text>
             {renderWeatherIcon(weatherData.weather)}
             <Text style={{ textAlign: 'center', color: 'white' }} h2>
                 {`${kelvin2farenheit(weatherData.temp)}°F / ${kelvin2celsius(weatherData.temp)}°C`}
             </Text>
-            <Button title="hi there" onPress={requestGeolocationPermission} />
         </SafeAreaView>
     );
 }
