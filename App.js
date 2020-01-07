@@ -10,11 +10,9 @@ import React from 'react';
 
 import { MainScreen } from './src/screens';
 
-const App: () => React$Node = () => {
+const App = () => {
   return (
-    <>
-      <MainScreen />
-    </>
+    <MainScreen />
   );
 };
 

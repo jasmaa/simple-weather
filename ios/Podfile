@@ -36,7 +36,7 @@ target 'SimpleWeather' do
 
   pod 'RNVectorIcons', :path => '../node_modules/react-native-vector-icons'
 
-  pod 'react-native-location', :path => '../node_modules/react-native-location'
+
 
   target 'SimpleWeatherTests' do
     inherit! :search_paths
